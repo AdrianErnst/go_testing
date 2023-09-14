@@ -1,0 +1,9 @@
+repos:
+  - repo: https://github.com/gitleaks/gitleaks.git
+    rev: v8.18.0
+    hooks:
+      - id: gitleaks
+  - repo: https://github.com/golangci/golangci-lint.git
+    rev: v1.54.2
+    hooks:
+      - id: golangci-lint
