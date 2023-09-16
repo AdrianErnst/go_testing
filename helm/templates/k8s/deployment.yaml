@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-k8s-client
+spec:
+  selector:
+    matchLabels:
+      app: go-k8s-client
+  template:
+    metadata:
+      labels:
+        app: go-k8s-client
+    spec:
+      serviceAccountName: go-k8s-client
+      containers:
+        - name: go-k8s-client
+          image: go_k8s_client:latest
+          imagePullPolicy: Never
+          resources:
+            limits:
+              memory: '128Mi'
+              cpu: '500m'
+          ports:
+            - containerPort: 9292

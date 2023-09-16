@@ -1,0 +1,5 @@
+{
+    "yaml.schemas": {
+        "kubernetes://schema/apps/v1@deployment": "file:///root/workdir/github/go_testing/helm/deployment.yaml"
+    }
+}

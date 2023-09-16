@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: go-k8s-client
+spec:
+  selector:
+    app: go-k8s-client
+  ports:
+  - port: 9292
+    targetPort: 9292
