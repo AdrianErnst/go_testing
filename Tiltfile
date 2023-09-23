@@ -29,7 +29,6 @@ docker_build_with_restart(
     dockerfile='./Dockerfile_local',
     only=[
         './build',
-        './web',
     ],
     live_update=[
         sync('./build', '/app/build'),
