@@ -10,4 +10,6 @@ It provides the following features:
 * Example minimal project
 * Gitignore config
 * License
+* Dockerfile with image builder
+* Tilt with live update for kind k8s helm deployment and local dockerfile
 
