@@ -22,4 +22,4 @@ go.work
 
 build
 .vscode
-start.go
+**/start.go

@@ -33,7 +33,7 @@ COPY . .
 RUN go mod download
 RUN go mod verify
 # Build the binary.
-RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o  /go/bin/k8s_go_client
+RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o  /go/bin/k8s_go_client ./cmd/web/
 
 ############################
 # STEP 2 build a small image
