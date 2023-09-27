@@ -1,0 +1,19 @@
+def k8s_yaml_object_selectors(yaml, ignore=None, extra_resources=None):
+    objs = decode_yaml_stream(yaml)
+    obj_selectors = []
+    for obj in objs:
+        name = obj.get('metadata')['name']
+        kind = obj.get('kind')
+        if ignore != None:
+            if "{}".format(name) in ignore or "{}:{}".format(name, kind) in ignore:
+                continue
+
+        obj_selectors.append("{name}:{kind}"
+            .format(name = name,
+                    kind = kind))
+    
+    if extra_resources != None:
+        for resource in extra_resources:
+            obj_selectors.append(resource)
+
+    return obj_selectors

@@ -27,6 +27,6 @@ func main() {
 
 		client.LogPodNames(ctx, Namespace)
 
-		time.Sleep(30 * time.Second)
+		time.Sleep(60 * time.Second)
 	}
 }

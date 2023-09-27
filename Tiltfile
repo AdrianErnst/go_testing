@@ -3,6 +3,7 @@ docker_prune_settings( disable = False , max_age_mins = 360 , num_builds = 0 , i
 # For more on Extensions, see: https://docs.tilt.dev/extensions.html
 load('ext://restart_process', 'docker_build_with_restart')
 load('extensions/go-test-tiltfile', 'test_go')
+load('extensions/k8s-yaml-object-selectors-tiltfile', 'k8s_yaml_object_selectors')
 
 test_go("test-runner", ".", ".", recursive=True)
 
@@ -32,19 +33,20 @@ docker_build_with_restart(
         sync('./build', '/app/build'),
     ],
 )
-k8s_yaml(helm('./deployments/helm', values='./deployments/helm/values.yaml'))
 
-# Todo tiltfile extension that gets objects from helm blob, with ignore for defined resources
+helm_blob = helm('./deployments/helm', values='./deployments/helm/values.yaml')
+k8s_yaml(helm_blob)
+
 k8s_resource(
     '',
     'local-helm',
-    objects = [
-        'client:namespace',
-        'go-k8s-client:serviceaccount',
-        'pod-reader:clusterrole',
-        'read-pods:clusterrolebinding',
-    ]
+    objects = k8s_yaml_object_selectors(
+        helm_blob,
+        ignore={'go-k8s-client':bool},
+        extra_resources=['go-k8s-client:serviceaccount']
+    ),
 )
+
 k8s_resource(
     'go-k8s-client',
     port_forwards = 9292,
