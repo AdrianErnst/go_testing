@@ -25,7 +25,7 @@ docker_build_with_restart(
     '.',
     entrypoint = ['/app/build/go_k8s_client'],
     build_args = {"PORT":"9292"},
-    dockerfile = './deployments/Dockerfile_local',
+    dockerfile = './deployments/local.Dockerfile',
     only=[
         './build',
     ],
