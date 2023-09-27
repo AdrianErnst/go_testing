@@ -1,0 +1,27 @@
+def test_go(name, package, deps, timeout='', tags=None, mod='', recursive=False, ignore=None,  extra_args=None, **kwargs):
+    if recursive and not package.endswith('...'):
+        package = package.rstrip('/')
+        package = package + '/...'
+
+    timeout_str = ''
+    if timeout:  # expects a go-parsable dur
+        timeout_str = '-timeout {}'.format(timeout)
+    tags_str = ''
+    if tags:
+        tags_str = '-tags {}'.format(','.join(tags))
+
+    mod_str = ''
+    if mod:
+        mod_str = '-mod {}'.format(mod)
+
+    extra_args_str = ''
+    if extra_args:
+        extra_args_str = ' '.join(extra_args)
+
+    if not ignore:
+        ignore=[]
+
+    cmd = 'go test {mod_str} {tags_str} {timeout_str} {extra_args_str} {package}'.format(
+          mod_str=mod_str, tags_str=tags_str, timeout_str=timeout_str,
+          extra_args_str=extra_args_str, package=package)
+    local_resource(name, cmd, deps=deps, ignore=ignore, allow_parallel=True, **kwargs)
