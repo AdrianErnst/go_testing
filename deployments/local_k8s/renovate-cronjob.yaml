@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: renovate-config
+data:
+  config.json: |-
+    {
+      "repositories": ["AdrianErnst/go_testing"]
+    }
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: renovate
+spec:
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 5
+  schedule: '0 0 * * *'
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: renovate
+              image: renovate/renovate@sha256:a186fdb52a363d596d19a7936ccff0e1bf3b661e0ea0ff2548c6b9df7e0ebb97
+              # Environment Variables
+              env:
+                - name: LOG_LEVEL
+                  value: debug
+              envFrom:
+                - secretRef:
+                    name: renovate
+              volumeMounts:
+                - name: config-volume
+                  mountPath: /opt/renovate/
+          restartPolicy: Never
+          volumes:
+            - name: config-volume
+              configMap:
+                name: renovate-config

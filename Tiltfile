@@ -4,6 +4,7 @@ docker_prune_settings( disable = False , max_age_mins = 360 , num_builds = 0 , i
 load('ext://restart_process', 'docker_build_with_restart')
 load('extensions/go-test-tiltfile', 'test_go')
 load('extensions/k8s-yaml-object-selectors-tiltfile', 'k8s_yaml_object_selectors')
+load('extensions/secrets-tiltfile', 'deploy_secrets')
 
 test_go("test-runner", ".", ".", recursive=True)
 
@@ -37,13 +38,22 @@ docker_build_with_restart(
 helm_blob = helm('./deployments/helm', values='./deployments/helm/values.yaml')
 k8s_yaml(helm_blob)
 
+local_secrets = {}
+#renovate_secret = ['./.secrets', 'renovate', 'default']
+#local_secrets[renovate_secret[0]]=[renovate_secret[1], renovate_secret[2]]
+deploy_secrets("secrets", local_secrets)
+#if len(renovate_secret) > 0:
+#    k8s_yaml('./deployments/local_k8s/renovate-cronjob.yaml')
+
 k8s_resource(
     '',
     'local-helm',
     objects = k8s_yaml_object_selectors(
         helm_blob,
         ignore={'go-k8s-client':bool},
-        extra_resources=['go-k8s-client:serviceaccount']
+        extra_resources=[
+            'go-k8s-client:serviceaccount',
+        ]
     ),
 )
 
