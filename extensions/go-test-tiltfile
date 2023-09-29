@@ -1,4 +1,4 @@
-def test_go(name, package, deps, timeout='', tags=None, mod='', recursive=False, ignore=None,  extra_args=None, **kwargs):
+def test_go(name, package, deps, resource_deps=None, timeout='', tags=None, mod='', recursive=False, ignore=None,  extra_args=None, **kwargs):
     if recursive and not package.endswith('...'):
         package = package.rstrip('/')
         package = package + '/...'
@@ -24,4 +24,4 @@ def test_go(name, package, deps, timeout='', tags=None, mod='', recursive=False,
     cmd = 'go test {mod_str} {tags_str} {timeout_str} {extra_args_str} {package}'.format(
           mod_str=mod_str, tags_str=tags_str, timeout_str=timeout_str,
           extra_args_str=extra_args_str, package=package)
-    local_resource(name, cmd, deps=deps, ignore=ignore, allow_parallel=True, **kwargs)
+    local_resource(name, cmd, deps=deps, ignore=ignore, allow_parallel=True, resource_deps=resource_deps, **kwargs)
