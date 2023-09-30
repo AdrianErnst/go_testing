@@ -8,7 +8,9 @@ import (
 type LoggerType int64
 
 const (
-	DefaultLoggerType LoggerType = iota
+	Start LoggerType = iota
+	DefaultLoggerType
+	End // should always be last element in enum
 )
 
 func NewLogger(lType LoggerType) *log.Logger {

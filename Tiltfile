@@ -30,12 +30,43 @@ local_resource(
     deps = ['cmd', "pkg"],
     ignore= [
         '**/test',
+        '**/tests',
     ],
     resource_deps = ['ctl_kind_cluster_registry']
 )
 
 # test app
-test_go("test-runner", ".", ".", recursive=True, extra_args=['-v', '-coverpkg=./...'], resource_deps=['go-build'])
+test_go(
+    "test-runner",
+    ".",
+    ".",
+    recursive=True,
+    extra_args=['-v', '-coverpkg=./...'],
+    resource_deps=['go-build'],
+    ignore=['**/*_i_test.go']
+)
+
+# incluster integration tests
+test_go(
+    "incluster-integration-test-runner",
+    ".",
+    ".",
+    tags=['integration', 'incluster'],
+    recursive=True,
+    extra_args=['-v', '-coverpkg=./...'],
+    trigger_mode=TRIGGER_MODE_MANUAL
+)
+
+# outcluster integration tests
+test_go(
+    "outcluster-integration-test-runner",
+    ".",
+    ".",
+    tags=['integration', 'outcluster'],
+    recursive=True,
+    extra_args=['-v', '-coverpkg=./...'],
+    trigger_mode=TRIGGER_MODE_MANUAL
+)
 
 # deploy app with live update and restart
 docker_build_with_restart(

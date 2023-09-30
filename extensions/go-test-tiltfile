@@ -1,4 +1,4 @@
-def test_go(name, package, deps, resource_deps=None, timeout='', tags=None, mod='', recursive=False, ignore=None,  extra_args=None, **kwargs):
+def test_go(name, package, deps, resource_deps=[], timeout='', tags=None, mod='', recursive=False, ignore=None,  extra_args=None, **kwargs):
     if recursive and not package.endswith('...'):
         package = package.rstrip('/')
         package = package + '/...'
