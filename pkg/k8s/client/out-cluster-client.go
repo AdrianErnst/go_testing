@@ -2,9 +2,11 @@ package k8s_client
 
 import (
 	"log"
+	"path/filepath"
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
 )
 
 type OutClusterClientConfig struct {
@@ -36,4 +38,12 @@ func newOutClusterClient(logger *log.Logger, config OutClusterClientConfig) IK8s
 	})
 
 	return outClient
+}
+
+func DefaultKubeConfigPath() string {
+	if home := homedir.HomeDir(); home != "" {
+		return filepath.Join(home, ".kube", "config")
+	}
+
+	return ""
 }

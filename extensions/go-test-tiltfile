@@ -21,7 +21,7 @@ def test_go(name, package, deps, resource_deps=[], timeout='', tags=None, mod=''
     if not ignore:
         ignore=[]
 
-    cmd = 'go test {mod_str} {tags_str} {timeout_str} {extra_args_str} {package}'.format(
+    cmd = 'go test {mod_str} {tags_str} {timeout_str} {package} {extra_args_str}'.format(
           mod_str=mod_str, tags_str=tags_str, timeout_str=timeout_str,
           extra_args_str=extra_args_str, package=package)
     local_resource(name, cmd, deps=deps, ignore=ignore, allow_parallel=True, resource_deps=resource_deps, **kwargs)

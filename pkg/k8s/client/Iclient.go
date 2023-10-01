@@ -17,6 +17,12 @@ const (
 	End // should always be last element in enum
 )
 
+//flags for testing
+const (
+	External = "external" 
+	KubeconfigFile = "kubeconfigFile"
+)
+
 // list implementations to quickly see which dont yet implement the interface fully
 var _ IK8sClient = &inClusterK8sClient{}
 var _ IK8sClient = &outClusterK8sClient{}

@@ -51,7 +51,7 @@ test_go(
     "incluster-integration-test-runner",
     ".",
     ".",
-    tags=['integration', 'incluster'],
+    tags=['integration'],
     recursive=True,
     extra_args=['-v', '-coverpkg=./...'],
     trigger_mode=TRIGGER_MODE_MANUAL
@@ -62,9 +62,9 @@ test_go(
     "outcluster-integration-test-runner",
     ".",
     ".",
-    tags=['integration', 'outcluster'],
+    tags=['integration'],
     recursive=True,
-    extra_args=['-v', '-coverpkg=./...'],
+    extra_args=['-v', '-coverpkg=./...', '-external'],
     trigger_mode=TRIGGER_MODE_MANUAL
 )
 
