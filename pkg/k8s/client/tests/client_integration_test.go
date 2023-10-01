@@ -1,11 +1,14 @@
-//go:build integration && incluster
-// +build integration,incluster
+//go:build integration
+// +build integration
 
 package k8s_client_test
 
 import (
 	"testing"
 )
+
+const Namespace = "client"
+
 
 func TestGetPodCount(t *testing.T) {
 	want := 1

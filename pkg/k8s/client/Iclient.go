@@ -26,10 +26,17 @@ type IK8sClient interface {
 	LogPodNames(ctx context.Context, namespace string)
 }
 
-func NewK8sClient(logger *log.Logger, cType ClientType) IK8sClient {
+type K8sClientConfig struct {
+	OutConfig *OutClusterClientConfig
+}
+
+func NewK8sClient(logger *log.Logger, cType ClientType, config *K8sClientConfig) IK8sClient {
 	switch cType {
 	case OutCluster:
-		return newOutClusterClient(logger)
+		if config.OutConfig == nil {
+			panic("trying to start external cluster without setting the needed config")
+		}
+		return newOutClusterClient(logger, *config.OutConfig)
 	case InCluster:
 		fallthrough
 	default:

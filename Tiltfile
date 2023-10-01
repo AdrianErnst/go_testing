@@ -43,10 +43,10 @@ test_go(
     recursive=True,
     extra_args=['-v', '-coverpkg=./...'],
     resource_deps=['go-build'],
-    ignore=['**/*_i_test.go']
+    ignore=['**/*_integration_test.go']
 )
 
-# incluster integration tests
+# integration tests in cluster setup
 test_go(
     "incluster-integration-test-runner",
     ".",
@@ -57,7 +57,7 @@ test_go(
     trigger_mode=TRIGGER_MODE_MANUAL
 )
 
-# outcluster integration tests
+# integration tests out of cluster setup
 test_go(
     "outcluster-integration-test-runner",
     ".",
