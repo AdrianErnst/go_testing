@@ -7,6 +7,7 @@ load('extensions/k8s-yaml-object-selectors-tiltfile', 'k8s_yaml_object_selectors
 load('extensions/secrets-tiltfile', 'deploy_secrets')
 
 # create/delete cluster and registry
+setup_grp = "Setup"
 ctlptl_filepath = 'ctlptl-kind.yaml'
 registry_name = 'ctlptl-registry'
 if config.tilt_subcommand == 'up':
@@ -14,7 +15,8 @@ if config.tilt_subcommand == 'up':
     local_resource(
         "ctl_kind_cluster_registry",
         ctlptl_cmd,
-        trigger_mode=TRIGGER_MODE_MANUAL
+        trigger_mode=TRIGGER_MODE_MANUAL,
+        labels=[setup_grp]
     )
 if config.tilt_subcommand == 'down':
     local('ctlptl delete -f {} | true'.format(ctlptl_filepath), quiet=True, echo_off=True)
@@ -24,6 +26,7 @@ if config.tilt_subcommand == 'down':
 compile_cmd = 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o build/go_k8s_client ./cmd/web/'
 if os.name == 'nt': compile_cmd = './scripts/build.bat'
 
+build_grp = "Build"
 local_resource(
     'go-build',
     compile_cmd,
@@ -32,10 +35,12 @@ local_resource(
         '**/test',
         '**/tests',
     ],
-    resource_deps = ['ctl_kind_cluster_registry']
+    resource_deps = ['ctl_kind_cluster_registry'],
+    labels=[build_grp]
 )
 
 # test app
+test_grp = "Tests"
 test_go(
     "test-runner",
     ".",
@@ -43,18 +48,8 @@ test_go(
     recursive=True,
     extra_args=['-v', '-coverpkg=./...'],
     resource_deps=['go-build'],
-    ignore=['**/*_integration_test.go']
-)
-
-# integration tests in cluster setup
-test_go(
-    "incluster-integration-test-runner",
-    ".",
-    ".",
-    tags=['integration'],
-    recursive=True,
-    extra_args=['-v', '-coverpkg=./...'],
-    trigger_mode=TRIGGER_MODE_MANUAL
+    ignore=['**/*_integration_test.go', 'deployments'],
+    labels=[test_grp]
 )
 
 # integration tests out of cluster setup
@@ -65,10 +60,39 @@ test_go(
     tags=['integration'],
     recursive=True,
     extra_args=['-v', '-coverpkg=./...', '-external'],
-    trigger_mode=TRIGGER_MODE_MANUAL
+    trigger_mode=TRIGGER_MODE_MANUAL,
+    labels=[test_grp]
 )
 
+def inClusterIntegrationsTests():
+    namespace = 'client-test'
+    image = 'go-k8s-client-testing'
+    pod_name = 'k8s-client-test'
+    helm_test_blob = helm('./deployments/helm-test', namespace=namespace)
+    res_name = "incluster-test"
+    docker_build(image, '.', dockerfile='./deployments/test.Dockerfile')
+    k8s_yaml(helm_test_blob)
+    k8s_resource(pod_name, res_name, auto_init=False,
+                 trigger_mode=TRIGGER_MODE_MANUAL,
+                 objects=k8s_yaml_object_selectors(
+                    helm_test_blob,
+                    ignore={'{}'.format(pod_name):bool},
+                    extra_resources=[
+                        "{}:serviceaccount".format(pod_name),
+                    ]
+                ),
+                labels=[test_grp]
+    )
+    images_cmd = "docker images '*/{}' -a -q".format(image)
+    delete_testing_images_cmd = "docker rmi $({})".format(images_cmd)
+    cmd = "if [ -n $({}) ]; then {}; fi".format(images_cmd, delete_testing_images_cmd)
+    local_resource('delete testing images', cmd,
+     resource_deps=[res_name], labels=[test_grp],
+     trigger_mode=TRIGGER_MODE_MANUAL)
+inClusterIntegrationsTests()
+
 # deploy app with live update and restart
+deployments_grp = 'Deployments'
 docker_build_with_restart(
     'go_k8s_client',
     '.',
@@ -90,7 +114,7 @@ renovate_secret = []
 deploy_secrets("secrets", local_secrets)
 
 # manage deployments into tilt resource
-helm_blob = helm('./deployments/helm', values='./deployments/helm/values.yaml')
+helm_blob = helm('./deployments/helm', namespace='client')
 k8s_yaml(helm_blob)
 k8s_resource(
     '',
@@ -102,10 +126,12 @@ k8s_resource(
             'go-k8s-client:serviceaccount',
         ]
     ),
+    labels=[deployments_grp]
 )
 
 k8s_resource(
     'go-k8s-client',
     port_forwards = 9292,
-    resource_deps = ['go-build']
+    resource_deps = ['go-build'],
+    labels=[deployments_grp]
 )

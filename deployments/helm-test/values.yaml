@@ -1,0 +1,5 @@
+namespace: client-test
+name: k8s-client-test
+image: go-k8s-client-testing
+port: 9293
+serviceAccountName: k8s-client-test
