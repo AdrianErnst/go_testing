@@ -2,14 +2,16 @@
 This repo builds the base for future go projects
 
 It provides the following features:
+* Kubernetes Client with in-cluster and local client configs + integration tests for both setups
+* Test split by build flags
+* Environment using startup flags
 * Pre-Commit Hooks
   * Linting
   * Gitleaks leak checks
 * Prettier config
-* Example tests
-* Example minimal project
 * Gitignore config
 * License
-* Dockerfile with image builder
-* Tilt with live update for kind k8s helm deployment and local dockerfile
+* Yaml based kind cluster and registry using ctlptl included in tilt up/down
+* Dockerfile with image builder with high security, test Dockerfile, local Dockerfile
+* Tilt with live update and testing for unit and integration tests in and out of cluster
 
