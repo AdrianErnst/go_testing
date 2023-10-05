@@ -17,9 +17,9 @@ const (
 	End // should always be last element in enum
 )
 
-//flags for testing
+// flags for testing
 const (
-	External = "external" 
+	External       = "external"
 	KubeconfigFile = "kubeconfigFile"
 )
 
