@@ -40,6 +40,7 @@ RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o  /go/bin/k8s_go_client 
 ############################
 FROM scratch
 ARG PORT
+ENV GIN_MODE=release
 
 # Import the user and group files from the builder.
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo

@@ -22,6 +22,25 @@ if config.tilt_subcommand == 'down':
     local('ctlptl delete -f {} | true'.format(ctlptl_filepath), quiet=True, echo_off=True)
     local('ctlptl delete registry {}'.format(registry_name), quiet=True, echo_off=True)
 
+# generate app code
+openapi_yaml = 'openapi.yaml'
+openapi_generate_cmd = 'docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli generate \
+    -i ./local/{} \
+    -g go-gin-server \
+    -o /local/cmd/web/gin-generated \
+    --additional-properties=packageName=gin'.format(openapi_yaml, PWD = 'PWD')
+
+generation_grp = "Generate"
+openapi_generate_name = 'generate_openapi'
+def openApiGenerateCode(name, cmd, yaml):
+    local_resource(
+        name,
+        cmd,
+        deps=[yaml],
+        labels=[generation_grp]
+    )
+openApiGenerateCode(openapi_generate_name, openapi_generate_cmd, openapi_yaml)
+
 # build app
 compile_cmd = 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o build/go_k8s_client ./cmd/web/'
 if os.name == 'nt': compile_cmd = './scripts/build.bat'
@@ -35,7 +54,7 @@ local_resource(
         '**/test',
         '**/tests',
     ],
-    resource_deps = ['ctl_kind_cluster_registry'],
+    resource_deps = ['ctl_kind_cluster_registry', openapi_generate_name],
     labels=[build_grp]
 )
 

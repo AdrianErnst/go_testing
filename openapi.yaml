@@ -1,0 +1,57 @@
+openapi: 3.1.0
+info:
+  description: Openapi specification for the cmd/web main
+  license:
+    name: MIT License
+    url: https://opensource.org/license/mit/
+  title: OpenAPI Go_Testing
+  version: 1.0.0
+externalDocs:
+  description: Swagger
+  url: http://swagger.io
+servers:
+- description: Tilt managed local Web-Server
+  url: http://go-k8s-client.client.svc.cluster.local:9292
+tags:
+- description: Manage your k8s resources
+  name: k8s
+paths:
+  /k8s/pods/count/{:namespace}:
+    get:
+      description: Returns number of pods
+      operationId: getPodCountByNamespace
+      parameters:
+      - description: Name of the namespace to get the pod count for
+        explode: false
+        in: path
+        name: :namespace
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Count'
+          description: successful operation
+        "404":
+          description: Namespace not found
+      summary: Get Pod count for a specific namespace
+      tags:
+      - k8s
+components:
+  schemas:
+    Count:
+      description: Count of the pods in the namespace
+      example:
+        count: 0
+      properties:
+        count:
+          format: int
+          type: integer
+      required:
+      - count
+      title: Count
+      type: object
