@@ -1,4 +1,5 @@
 api/openapi.yaml
+go/api_docu.go
 go/api_k8s.go
 go/model_count.go
 go/routers.go

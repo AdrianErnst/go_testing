@@ -4,19 +4,18 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/license/mit/
-  title: OpenAPI Go_Testing
-  version: 1.0.0
-externalDocs:
-  description: Swagger
-  url: http://swagger.io
+  title: Go_Testing API
+  version: 1.1.0
 servers:
 - description: Tilt managed local Web-Server
   url: http://go-k8s-client.client.svc.cluster.local:9292
 tags:
 - description: Manage your k8s resources
   name: k8s
+- description: Documentation
+  name: docu
 paths:
-  /k8s/pods/count/{:namespace}:
+  /api/k8s/pods/count/{namespace}:
     get:
       description: Returns number of pods
       operationId: getPodCountByNamespace
@@ -24,7 +23,7 @@ paths:
       - description: Name of the namespace to get the pod count for
         explode: false
         in: path
-        name: :namespace
+        name: namespace
         required: true
         schema:
           type: string
@@ -41,6 +40,16 @@ paths:
       summary: Get Pod count for a specific namespace
       tags:
       - k8s
+  /api/:
+    get:
+      description: Returns this page
+      operationId: getApi
+      responses:
+        "200":
+          description: successful operation
+      summary: Get this html
+      tags:
+      - docu
 components:
   schemas:
     Count:

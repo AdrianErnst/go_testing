@@ -30,16 +30,28 @@ openapi_generate_cmd = 'docker run --rm -v "${PWD}:/local" openapitools/openapi-
     -o /local/cmd/web/gin-generated \
     --additional-properties=packageName=gin'.format(openapi_yaml, PWD = 'PWD')
 
+openapi_generate_docu_cmd = 'docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli generate \
+    -i ./local/{} \
+    -g html2 \
+    -o /local/docs/generated/'.format(openapi_yaml, PWD = 'PWD')
+
 generation_grp = "Generate"
 openapi_generate_name = 'generate_openapi'
-def openApiGenerateCode(name, cmd, yaml):
-    local_resource(
-        name,
-        cmd,
-        deps=[yaml],
-        labels=[generation_grp]
-    )
-openApiGenerateCode(openapi_generate_name, openapi_generate_cmd, openapi_yaml)
+openapi_generate_docu_name = openapi_generate_name + '_docu'
+
+local_resource(
+    openapi_generate_name,
+    openapi_generate_cmd,
+    deps=[openapi_yaml],
+    labels=[generation_grp]
+)
+
+local_resource(
+    openapi_generate_docu_name,
+    openapi_generate_docu_cmd,
+    deps=[openapi_yaml],
+    labels=[generation_grp]
+)
 
 # build app
 compile_cmd = 'CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o build/go_k8s_client ./cmd/web/'
@@ -54,7 +66,10 @@ local_resource(
         '**/test',
         '**/tests',
     ],
-    resource_deps = ['ctl_kind_cluster_registry', openapi_generate_name],
+    resource_deps = [
+        'ctl_kind_cluster_registry',
+        openapi_generate_name,
+        openapi_generate_docu_name],
     labels=[build_grp]
 )
 
@@ -120,9 +135,11 @@ docker_build_with_restart(
     dockerfile = './deployments/local.Dockerfile',
     only=[
         './build',
+        './docs'
     ],
     live_update = [
         sync('./build', '/app/build'),
+        sync('./docs', '/app/docs'),
     ],
 )
 

@@ -13,8 +13,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type K8sAPI struct {
-	// Get /api/k8s/pods/count/:namespace
-	// Get Pod count for a specific namespace
-	GetPodCountByNamespace gin.HandlerFunc
+type DocuAPI struct {
+	// Get /api/
+	// Get this html
+	GetApi gin.HandlerFunc
 }

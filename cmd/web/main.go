@@ -30,9 +30,13 @@ func main() {
 	}
 	client := k8s_client.NewK8sClient(dLogger, clientType, &config.K8sClient)
 	router := gin.NewGinRouter(
-		gin.DefaultK8sController{
-			Client: client,
-		})
+		gin.Controllers{
+			K8s: gin.DefaultK8sController{
+				Client: client,
+			},
+			Docu: gin.NewDefaultSwaggerController(),
+		},
+	)
 	server := &http.Server{
 		Addr:         ":9292",
 		Handler:      router.Handler,

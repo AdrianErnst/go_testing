@@ -8,6 +8,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	DocuHTMLFileName = "index.html"
+	DocuHtmlPath     = "/app/docs/generated/*.html"
+)
+
 var once sync.Once
 var router *gin.Engine
 
@@ -15,7 +20,12 @@ type Router struct {
 	Handler http.Handler
 }
 
-func NewGinRouter(ctrl IK8sController, globalMiddleware ...gin.HandlerFunc) *Router {
+type Controllers struct {
+	K8s  IK8sController
+	Docu IDocuController
+}
+
+func NewGinRouter(ctrls Controllers, globalMiddleware ...gin.HandlerFunc) *Router {
 	once.Do(func() {
 		router = gin.New()
 		if len(globalMiddleware) == 0 {
@@ -26,6 +36,7 @@ func NewGinRouter(ctrl IK8sController, globalMiddleware ...gin.HandlerFunc) *Rou
 				router.Use(middleware)
 			}
 		}
+		router.LoadHTMLGlob(DocuHtmlPath)
 
 		api := router.Group("/api")
 		{
@@ -33,8 +44,10 @@ func NewGinRouter(ctrl IK8sController, globalMiddleware ...gin.HandlerFunc) *Rou
 			{
 				pods := k8s.Group("/pods")
 				pods.GET(fmt.Sprintf("/count/:%s", string(Namespace)),
-					ctrl.GetPodCount)
+					ctrls.K8s.GetPodCount)
 			}
+
+			api.GET("/", ctrls.Docu.Get)
 		}
 	})
 
