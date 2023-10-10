@@ -1,4 +1,4 @@
-package k8s_client
+package client
 
 import (
 	"context"

@@ -27,8 +27,8 @@ openapi_yaml = 'openapi.yaml'
 openapi_generate_cmd = 'docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli generate \
     -i ./local/{} \
     -g go-gin-server \
-    -o /local/cmd/web/gin-generated \
-    --additional-properties=packageName=gin'.format(openapi_yaml, PWD = 'PWD')
+    -o /local/cmd/web/openapi-gin \
+    --additional-properties=packageName=openapi'.format(openapi_yaml, PWD = 'PWD')
 
 openapi_generate_docu_cmd = 'docker run --rm -v "${PWD}:/local" openapitools/openapi-generator-cli generate \
     -i ./local/{} \

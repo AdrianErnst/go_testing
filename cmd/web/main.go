@@ -1,7 +1,8 @@
 package main
 
 import (
-	"go_testing/cmd/web/gin"
+	"go_testing/cmd/web/controllers"
+	openapi_gin "go_testing/cmd/web/openapi-gin/go"
 	"go_testing/internal/flags"
 	k8s_client "go_testing/pkg/k8s/client"
 	"go_testing/pkg/logger"
@@ -14,6 +15,9 @@ import (
 
 const NamespaceKey = util.ContextKey("Namespace")
 const Namespace = "client"
+const (
+	DocuHtmlPath = "/app/docs/generated/*.html"
+)
 
 var (
 	g errgroup.Group
@@ -29,17 +33,23 @@ func main() {
 		clientType = k8s_client.InCluster
 	}
 	client := k8s_client.NewK8sClient(dLogger, clientType, &config.K8sClient)
-	router := gin.NewGinRouter(
-		gin.Controllers{
-			K8s: gin.DefaultK8sController{
+
+	handleFuncs := openapi_gin.ApiHandleFunctions{
+		DocuAPI: controllers.NewDocuApiController(
+			&controllers.DocuApiController{},
+		),
+		K8sAPI: controllers.NewK8sApiController(
+			controllers.K8sController{
 				Client: client,
 			},
-			Docu: gin.NewDefaultSwaggerController(),
-		},
-	)
+		),
+	}
+
+	router := openapi_gin.NewRouter(handleFuncs)
+	router.LoadHTMLGlob(DocuHtmlPath)
 	server := &http.Server{
 		Addr:         ":9292",
-		Handler:      router.Handler,
+		Handler:      router.Handler(),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
